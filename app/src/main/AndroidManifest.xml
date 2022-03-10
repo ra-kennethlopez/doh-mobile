@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.pc.doh">
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/doh"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/doh"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        >
+        <activity
+            android:name=".Activity.MainActivity"
+            android:theme="@style/Theme.Design.Light.NoActionBar"
+            android:configChanges="orientation|screenSize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Activity.HomeActivity"
+            android:label="@string/title_activity_home"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"></activity>
+        <activity
+            android:name=".Activity.ForgotPasswordActivity"
+            android:label=""
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.AssestmentDetailsActivity"
+            android:label="@string/title_activity_home"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.AssessmentHeaderActvitiy"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.PersonnelDetailsActivity"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.ChangePasswordActivity"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.ChangePinPasswordActivity"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.MonitoringActivity"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.senddataActivity"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.receivedataActivity"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.MonitoringDetailsActivity"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.MonitoringHeadersActivity"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.monitoringquestion"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.EvaluationHeadersActivity"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+
+        <activity
+            android:name=".Activity.EvaluationActivity"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.evaluatedetails"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.AssessmentPart"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.AssessmentHeaderOne"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.AssessmentHeaderTwo"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.AssessmentHeaderThree"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.ShowAssessment"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.recommendation"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.MonitoringPart"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.MonitorHeaderOne"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.MonShowAssessment"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+
+        <activity
+            android:name=".Activity.monrecommendation"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.EvaluationPart"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.EvaluationShowAssessment"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+        <activity
+            android:name=".Activity.compareactivity"
+            android:label="HOME"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize"
+            ></activity>
+
+
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+    </application>
+
+
+
+</manifest>

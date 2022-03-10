@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".Activity.HomeActivity"
+    tools:showIn="@layout/app_bar_header">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:scrollbarAlwaysDrawVerticalTrack="true">
+        <ProgressBar
+            android:id="@+id/asesssProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:visibility="gone"/>
+        <ScrollView
+            android:id="@+id/svheader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                >
+                <TextView
+                    android:id="@+id/facname"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text=""
+                    android:layout_margin="5dp"
+                    android:gravity="center"
+                    android:textAllCaps="true"
+                    android:textSize="20dp"
+                    android:drawableLeft="@drawable/ic_dehaze_black_24dp"
+                    />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginLeft="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pending for assessment"
+                        android:background="#FFC000"
+                        android:textColor="#fff"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp"
+                        android:layout_margin="5dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="assessed"
+                        android:background="@color/color28A55F"
+                        android:textColor="#fff"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp"
+                        android:layout_margin="5dp"/>
+                </LinearLayout>
+                <!--<LinearLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:orientation="horizontal"-->
+                    <!--android:gravity="center"-->
+                    <!--&gt;-->
+                    <!--<TextView-->
+                        <!--android:id="@+id/tool"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:text="Assessment Tool"-->
+                        <!--android:layout_margin="5dp"-->
+                        <!--android:gravity="center"-->
+                        <!--android:textSize="15dp"-->
+                        <!--android:textColor="#87cefa"-->
+                        <!--/>-->
+                    <!--<TextView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:text=">"-->
+                        <!--android:layout_margin="5dp"-->
+                        <!--android:gravity="center"-->
+                        <!--android:textSize="15dp"-->
+                        <!--/>-->
+                    <!--<TextView-->
+                        <!--android:id="@+id/headerone"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:text="Header Level 1"-->
+                        <!--android:layout_margin="5dp"-->
+                        <!--android:gravity="center"-->
+                        <!--android:textSize="15dp"-->
+                        <!--android:textColor="#87cefa"-->
+                        <!--/>-->
+                    <!--<TextView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:text=">"-->
+                        <!--android:layout_margin="5dp"-->
+                        <!--android:gravity="center"-->
+                        <!--android:textSize="15dp"-->
+                        <!--/>-->
+                    <!--<TextView-->
+                        <!--android:id="@+id/headertwo"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:text="Header Level 2"-->
+                        <!--android:layout_margin="5dp"-->
+                        <!--android:gravity="center"-->
+                        <!--android:textSize="15dp"-->
+                        <!--android:textColor="#87cefa"-->
+                        <!--/>-->
+                    <!--<TextView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:text=">"-->
+                        <!--android:layout_margin="5dp"-->
+                        <!--android:gravity="center"-->
+                        <!--android:textSize="15dp"-->
+                        <!--/>-->
+                <!--</LinearLayout>-->
+                <!--<LinearLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:orientation="horizontal"-->
+                    <!--android:gravity="center">-->
+                    <!--<TextView-->
+                        <!--android:id="@+id/headerthree"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:text="Header Level 3"-->
+                        <!--android:layout_margin="5dp"-->
+                        <!--android:gravity="center"-->
+                        <!--android:textSize="15dp"-->
+                        <!--android:textColor="#87cefa"-->
+
+                        <!--/>-->
+                <!--</LinearLayout>-->
+
+
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:showDividers="end"
+                    android:orientation="vertical"
+                    android:paddingRight="10dp"
+                    android:paddingLeft="10dp"
+                    android:divider="@drawable/divider_drawable"
+                    >
+                    <TextView
+                        android:id="@+id/header"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textStyle="bold"
+                        android:textAllCaps="true"
+                        android:textSize="14sp"
+                        android:layout_margin="5dp"/>
+                </LinearLayout>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/headerrv"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                </android.support.v7.widget.RecyclerView>
+
+
+
+            </LinearLayout>
+
+        </ScrollView>
+        <TextView
+            android:id="@+id/lblheadmessage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="No Headers Found"
+            android:visibility="gone"
+            />
+    </RelativeLayout>
+
+
+
+</android.support.constraint.ConstraintLayout>
