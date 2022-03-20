@@ -166,8 +166,12 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
         lcomment = findViewById(R.id.lcomments);
         lcomment.setVisibility(View.GONE);
         btndraft = findViewById(R.id.btndraft);
-        btndraft.setVisibility(View.GONE);
-        btnsubmit.setVisibility(View.GONE);
+//        btndraft.setVisibility(View.GONE);
+//        btnsubmit.setVisibility(View.GONE);
+        btndraft.setEnabled(false);
+        btndraft.setAlpha(.5f);
+        btnsubmit.setEnabled(false);
+        btnsubmit.setAlpha(.5f);
 
         tooltitle.setText("Assessment Details");
         tooltitle.setOnClickListener(new View.OnClickListener() {
@@ -224,24 +228,50 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
         adapter = new assessdetadapter(this,silist);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
-        adapter.addItemTouchListener(new assessdetadapter.onTouchListener() {
+
+//        adapter.addItemTouchListener(new assessdetadapter.onTouchListener() {
+//            @Override
+//            public void onTouch(int position) {
+//                int size = silist.size() - 1;
+//                save_assessment(position);
+//                if(size == position)
+//                {
+//                    btnsubmit.setVisibility(View.VISIBLE);
+//                    btndraft.setVisibility(View.VISIBLE);
+//                }else{
+//                    btnsubmit.setVisibility(View.GONE);
+//                    btndraft.setVisibility(View.GONE);
+//                }
+//                Log.d("touch",position+"");
+//                int page = position + 1;
+//                items.setText(page+" of "+silist.size());
+//                //,,
+//                ansitems.setText("Answer item(s) : "+db.countanswer(AssessmentPart.id,hid,HomeActivity.appid));
+//            }
+//        });
+
+        adapter.addClickRadioListener(new assessdetadapter.OnClickRadioListener() {
             @Override
-            public void onTouch(int position) {
-                int size = silist.size() - 1;
+            public void onClickRadio(int position) {
                 save_assessment(position);
-                if(size == position)
-                {
-                    btnsubmit.setVisibility(View.VISIBLE);
-                    btndraft.setVisibility(View.VISIBLE);
-                }else{
-                    btnsubmit.setVisibility(View.GONE);
-                    btndraft.setVisibility(View.GONE);
-                }
-                Log.d("touch",position+"");
-                int page = position + 1;
-                items.setText(page+" of "+silist.size());
-                //,,
                 ansitems.setText("Answer item(s) : "+db.countanswer(AssessmentPart.id,hid,HomeActivity.appid));
+
+                btndraft.setEnabled(true);
+                btndraft.setAlpha(1);
+
+                boolean hasUnAnswered = false;
+                for (int c = 0; c < silist.size(); c++) {
+                    String choice = silist.get(c).getChoice();
+                    if (choice == null || choice.length() == 0) {
+                        hasUnAnswered = true;
+                        break;
+                    }
+                }
+
+                if (!hasUnAnswered) {
+                    btnsubmit.setEnabled(true);
+                    btnsubmit.setAlpha(1);
+                }
             }
         });
 
@@ -355,96 +385,143 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
         super.onBackPressed();
     }
 
-    private void save_assessment(int pos){
-        View view =rv.findViewWithTag(pos);
-        if(view!=null){
-            EditText txtr = view.findViewById(R.id.remark);
-            RadioGroup r = view.findViewById(R.id.rgchoice);
-            int selectedId = r.getCheckedRadioButtonId();
-            String choice = "";
-            //rv.setNestedScrollingEnabled(true);
-            //Log.d("position",position);
-            switch (selectedId){
-                case R.id.yes:
-                    choice = "1";
-                    //txtr.setError(null);
-                    silist.get(pos).setChoice("1");
-                    rv.setLayoutFrozen(false);
-                    break;
-                case R.id.no:
-                    choice = "0";
-                    silist.get(pos).setChoice("0");
-                    rv.setLayoutFrozen(false);
-                    /*
-                    if(TextUtils.isEmpty(txtr.getText().toString())){
-                        //txtr.setError("Please Enter your Remarks. Thank You");
-                        //rv.setNestedScrollingEnabled(false);
-                        //return;
-                    }*/
-                    break;
-                case R.id.na:
-                    silist.get(pos).setChoice("NA");
-                    choice = "NA";
-                    rv.setLayoutFrozen(false);
-                    break;
-                case R.id.skip:
-                    silist.get(pos).setChoice("SKIP");
-                    choice = "SKIP";
-                    rv.setLayoutFrozen(false);
-                    break;
-                default:
-                    choice = "nochoice";
-                    //rv.setNestedScrollingEnabled(false);
-                    Toast.makeText(getApplicationContext(),"Please Choose your Answer",Toast.LENGTH_SHORT).show();
-                    rv.scrollToPosition(pos);
-                    rv.setLayoutFrozen(true);
-                    break;
-            }
+    private void saveAssessment(int pos, String remarks) {
+        String choice = silist.get(pos).getChoice();
 
-            if(txtr.getText().toString() != null && !txtr.getText().toString().equals("")){
-                Log.d("remark",txtr.getText().toString());
-                silist.get(pos).setRemarks(txtr.getText().toString());
-            }
-            Log.d("choice",choice);
-            Log.d("id",silist.get(pos).getId());
-            Log.d("desc",silist.get(pos).getDisp());
-            Log.d("otherheading",silist.get(pos).getOtherheading());
-            Log.d("sequence",silist.get(pos).getSequence());
-            //
-            if(choice != "nochoice"){
-                String dupid = db.get_tbl_assesscombinedheaderone(HomeActivity.appid,uid,silist.get(pos).getId(),hid);
-                if (db.checkDatas("assesscombined", "dupID", dupid)){
-                      Log.d("check","true");
-                    Boolean check = db.get_tbl_assesscombineduid(dupid,uid);
-                    if(check){
-                        String[] ucolumns = {"evaluation","remarks"};
-                        String[] udata = {choice,txtr.getText().toString()};
-                        if (db.update("assesscombined", ucolumns, udata, "dupid",dupid)) {
-                            Log.d("updatedata", "update");
-                            //Toast.makeText(getApplicationContext(),"Save Answer",Toast.LENGTH_SHORT).show();
-                        } else {
-                            Log.d("updatedata", "not update");
-                        }
-                    }
-                }else{
-                    Log.d("check","false");
-                    String[] dcolumns = {"asmtComb_FK", "assessmentName", "assessmentSeq","assessmentHead","asmtH3ID_FK","h3name","asmtH2ID_FK","h2name","asmtH1ID_FK","h1name","partID",
-                                         "evaluation","remarks","evaluatedBy","appid","monid","epos","ename"};
-                    String[] datas = {silist.get(pos).getId(),silist.get(pos).getDisp(),silist.get(pos).getSequence(),silist.get(pos).getOtherheading(),
-                                      AssessmentPart.id,AssessmentPart.desc,AssessmentHeaderOne.asmt2id,AssessmentHeaderOne.asmt2desc,
-                                      hid,hdesc,hid,choice,txtr.getText().toString(),uid,HomeActivity.appid,"",position,uname};
-                    if (db.add("assesscombined", dcolumns, datas, "")) {
-                        Log.d("assesscombined", "added");
+        if (remarks != null && remarks.length() == 0) {
+            silist.get(pos).setRemarks(remarks);
+        }
+
+        if (choice != null && choice.length() > 0) {
+            String dupid = db.get_tbl_assesscombinedheaderone(HomeActivity.appid,uid,silist.get(pos).getId(),hid);
+            if (db.checkDatas("assesscombined", "dupID", dupid)){
+                Log.d("check","true");
+                Boolean check = db.get_tbl_assesscombineduid(dupid,uid);
+                if(check){
+                    String[] ucolumns = {"evaluation","remarks"};
+                    String[] udata = {choice,remarks};
+                    if (db.update("assesscombined", ucolumns, udata, "dupid",dupid)) {
+                        Log.d("updatedata", "update");
                         //Toast.makeText(getApplicationContext(),"Save Answer",Toast.LENGTH_SHORT).show();
                     } else {
-                        Log.d("assesscombined", "not added");
+                        Log.d("updatedata", "not update");
                     }
                 }
             }else{
-
+                Log.d("check","false");
+                String[] dcolumns = {"asmtComb_FK", "assessmentName", "assessmentSeq","assessmentHead","asmtH3ID_FK","h3name","asmtH2ID_FK","h2name","asmtH1ID_FK","h1name","partID",
+                        "evaluation","remarks","evaluatedBy","appid","monid","epos","ename"};
+                String[] datas = {silist.get(pos).getId(),silist.get(pos).getDisp(),silist.get(pos).getSequence(),silist.get(pos).getOtherheading(),
+                        AssessmentPart.id,AssessmentPart.desc,AssessmentHeaderOne.asmt2id,AssessmentHeaderOne.asmt2desc,
+                        hid,hdesc,hid,choice,remarks,uid,HomeActivity.appid,"",position,uname};
+                if (db.add("assesscombined", dcolumns, datas, "")) {
+                    Log.d("assesscombined", "added");
+                    //Toast.makeText(getApplicationContext(),"Save Answer",Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.d("assesscombined", "not added");
+                }
             }
         }
     }
+
+    private void save_assessment(int pos){
+        View view = rv.findViewWithTag(pos);
+        if(view != null) {
+            EditText remark = view.findViewById(R.id.remark);
+            saveAssessment(pos, remark.getText().toString());
+        }
+    }
+
+//    private void save_assessment(int pos){
+//        View view =rv.findViewWithTag(pos);
+//        if(view!=null){
+//            EditText txtr = view.findViewById(R.id.remark);
+//            RadioGroup r = view.findViewById(R.id.rgchoice);
+//            int selectedId = r.getCheckedRadioButtonId();
+//            String choice = "";
+//            //rv.setNestedScrollingEnabled(true);
+//            //Log.d("position",position);
+//            switch (selectedId){
+//                case R.id.yes:
+//                    choice = "1";
+//                    //txtr.setError(null);
+//                    silist.get(pos).setChoice("1");
+//                    rv.setLayoutFrozen(false);
+//                    break;
+//                case R.id.no:
+//                    choice = "0";
+//                    silist.get(pos).setChoice("0");
+//                    rv.setLayoutFrozen(false);
+//                    /*
+//                    if(TextUtils.isEmpty(txtr.getText().toString())){
+//                        //txtr.setError("Please Enter your Remarks. Thank You");
+//                        //rv.setNestedScrollingEnabled(false);
+//                        //return;
+//                    }*/
+//                    break;
+//                case R.id.na:
+//                    silist.get(pos).setChoice("NA");
+//                    choice = "NA";
+//                    rv.setLayoutFrozen(false);
+//                    break;
+//                case R.id.skip:
+//                    silist.get(pos).setChoice("SKIP");
+//                    choice = "SKIP";
+//                    rv.setLayoutFrozen(false);
+//                    break;
+//                default:
+//                    choice = "nochoice";
+//                    //rv.setNestedScrollingEnabled(false);
+//                    Toast.makeText(getApplicationContext(),"Please Choose your Answer",Toast.LENGTH_SHORT).show();
+//                    rv.scrollToPosition(pos);
+//                    rv.setLayoutFrozen(true);
+//                    break;
+//            }
+//
+//            if(txtr.getText().toString() != null && !txtr.getText().toString().equals("")){
+//                Log.d("remark",txtr.getText().toString());
+//                silist.get(pos).setRemarks(txtr.getText().toString());
+//            }
+//            Log.d("choice",choice);
+//            Log.d("id",silist.get(pos).getId());
+//            Log.d("desc",silist.get(pos).getDisp());
+//            Log.d("otherheading",silist.get(pos).getOtherheading());
+//            Log.d("sequence",silist.get(pos).getSequence());
+//            //
+//            if(choice != "nochoice"){
+//                String dupid = db.get_tbl_assesscombinedheaderone(HomeActivity.appid,uid,silist.get(pos).getId(),hid);
+//                if (db.checkDatas("assesscombined", "dupID", dupid)){
+//                      Log.d("check","true");
+//                    Boolean check = db.get_tbl_assesscombineduid(dupid,uid);
+//                    if(check){
+//                        String[] ucolumns = {"evaluation","remarks"};
+//                        String[] udata = {choice,txtr.getText().toString()};
+//                        if (db.update("assesscombined", ucolumns, udata, "dupid",dupid)) {
+//                            Log.d("updatedata", "update");
+//                            //Toast.makeText(getApplicationContext(),"Save Answer",Toast.LENGTH_SHORT).show();
+//                        } else {
+//                            Log.d("updatedata", "not update");
+//                        }
+//                    }
+//                }else{
+//                    Log.d("check","false");
+//                    String[] dcolumns = {"asmtComb_FK", "assessmentName", "assessmentSeq","assessmentHead","asmtH3ID_FK","h3name","asmtH2ID_FK","h2name","asmtH1ID_FK","h1name","partID",
+//                                         "evaluation","remarks","evaluatedBy","appid","monid","epos","ename"};
+//                    String[] datas = {silist.get(pos).getId(),silist.get(pos).getDisp(),silist.get(pos).getSequence(),silist.get(pos).getOtherheading(),
+//                                      AssessmentPart.id,AssessmentPart.desc,AssessmentHeaderOne.asmt2id,AssessmentHeaderOne.asmt2desc,
+//                                      hid,hdesc,hid,choice,txtr.getText().toString(),uid,HomeActivity.appid,"",position,uname};
+//                    if (db.add("assesscombined", dcolumns, datas, "")) {
+//                        Log.d("assesscombined", "added");
+//                        //Toast.makeText(getApplicationContext(),"Save Answer",Toast.LENGTH_SHORT).show();
+//                    } else {
+//                        Log.d("assesscombined", "not added");
+//                    }
+//                }
+//            }else{
+//
+//            }
+//        }
+//    }
 
     private void save_assessment_header(){
         String id = db.get_tbl_assessment_header(HomeActivity.appid,uid,hid,"3");

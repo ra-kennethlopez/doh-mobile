@@ -28,14 +28,23 @@ public class assessdetadapter extends RecyclerView.Adapter<assessdetadapter.view
     private Context context;
     private List<showassessitem> list;
     private onTouchListener listener;
+    private OnClickRadioListener onClickRadioListener;
 
 
     public interface onTouchListener{
         void onTouch(int position);
     }
 
+    public interface OnClickRadioListener {
+        void onClickRadio(int position);
+    }
+
     public void addItemTouchListener(onTouchListener mlistener){
         listener = mlistener;
+    }
+
+    public void addClickRadioListener(OnClickRadioListener listener) {
+        onClickRadioListener = listener;
     }
 
     public assessdetadapter(Context context, List<showassessitem> list) {
@@ -162,38 +171,70 @@ public class assessdetadapter extends RecyclerView.Adapter<assessdetadapter.view
     }
 
     @Override
-    public void onBindViewHolder(@NonNull viewholder viewholder, int i) {
+    public void onBindViewHolder(@NonNull final viewholder viewholder, int i) {
         int id = (i+1)*100;
         RadioGroup rg = viewholder.rgchoice;
-        RadioButton rbyes = rg.findViewById(R.id.yes);
-        RadioButton rbno = rg.findViewById(R.id.no);
-        RadioButton rbna = rg.findViewById(R.id.na);
-        RadioButton rbskip = rg.findViewById(R.id.skip);
 
         String remarks = list.get(i).getRemarks();
         if(remarks.equals("")){
             viewholder.remarks.setText("");
             viewholder.lblremarks.setVisibility(View.GONE);
         }else{
-            viewholder.remarks.setText(list.get(i).getRemarks());
+            viewholder.remarks.setText(remarks);
             viewholder.lblremarks.setVisibility(View.VISIBLE);
         }
-        String choice = list.get(i).getChoice();
-        if(choice.equals("1")){
-          rbyes.setChecked(true);
-        }else if(choice.equals("0")){
-         rbno.setChecked(true);
-        }else if(choice.equals("NA")){
-         rbna.setChecked(true);
-        }else if(choice.equals("SKIP")){
-            rbskip.setChecked(true);
-        }else{
-            rg.clearCheck();
+
+        for (int c = 0; c < rg.getChildCount(); c++) { if (rg.getChildAt(c) instanceof RadioButton && !rg.getChildAt(c).hasOnClickListeners()) {
+            rg.getChildAt(c).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String selected = ((RadioButton) view).getText().toString();
+                    int pos = viewholder.getAdapterPosition();
+
+                    switch (selected) {
+                        case "YES":
+                            list.get(pos).setChoice("1");
+                            break;
+                        case "NO":
+                            list.get(pos).setChoice("0");
+                            break;
+                        case "N/A":
+                            list.get(pos).setChoice("NA");
+                            break;
+                        case "SKIP":
+                            list.get(pos).setChoice("SKIP");
+                            break;
+                    }
+
+                    if (onClickRadioListener != null) {
+                        onClickRadioListener.onClickRadio(pos);
+                    }
+                }
+            });
+        }
         }
 
-        if(list.get(i).getOtherheading() != null){
+        int checkedRadioId = rg.getCheckedRadioButtonId();
+        RadioButton checkedRadio = rg.findViewById(checkedRadioId);
+        String choice = list.get(i).getChoice();
+
+        if(choice.equals("1")){
+            rg.check(R.id.yes);
+        }else if(choice.equals("0")){
+            rg.check(R.id.no);
+        }else if(choice.equals("NA")){
+            rg.check(R.id.na);
+        }else if(choice.equals("SKIP")){
+            rg.check(R.id.skip);
+        } else {
+            if (checkedRadio != null) {
+                rg.clearCheck();
+            }
+        }
+
+        if(list.get(i).getOtherheading() != null) {
             viewholder.details.setText(Html.fromHtml(list.get(i).getOtherheading()+list.get(i).getDisp()));
-        }else{
+        } else{
             viewholder.details.setText(Html.fromHtml(list.get(i).getDisp()));
         }
 
