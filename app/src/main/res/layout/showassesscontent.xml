@@ -121,6 +121,7 @@
                                 android:textStyle="bold"
                                 android:textAllCaps="true"
                                 android:layout_margin="3dp"
+                                android:visibility="gone"
                                 />
                         </LinearLayout>
 

@@ -184,34 +184,41 @@ public class assessdetadapter extends RecyclerView.Adapter<assessdetadapter.view
             viewholder.lblremarks.setVisibility(View.VISIBLE);
         }
 
-        for (int c = 0; c < rg.getChildCount(); c++) { if (rg.getChildAt(c) instanceof RadioButton && !rg.getChildAt(c).hasOnClickListeners()) {
-            rg.getChildAt(c).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    String selected = ((RadioButton) view).getText().toString();
-                    int pos = viewholder.getAdapterPosition();
+        for (int c = 0; c < rg.getChildCount(); c++) {
+            View child = rg.getChildAt(c);
 
-                    switch (selected) {
-                        case "YES":
-                            list.get(pos).setChoice("1");
-                            break;
-                        case "NO":
-                            list.get(pos).setChoice("0");
-                            break;
-                        case "N/A":
-                            list.get(pos).setChoice("NA");
-                            break;
-                        case "SKIP":
-                            list.get(pos).setChoice("SKIP");
-                            break;
-                    }
+            if (child instanceof RadioButton && !child.hasOnClickListeners()) {
+                if (((RadioButton) child).getText().toString().equals("SKIP")) {
+                    rg.getChildAt(c).setVisibility(View.GONE);
+                } else {
+                    rg.getChildAt(c).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            String selected = ((RadioButton) view).getText().toString();
+                            int pos = viewholder.getAdapterPosition();
 
-                    if (onClickRadioListener != null) {
-                        onClickRadioListener.onClickRadio(pos);
-                    }
+                            switch (selected) {
+                                case "YES":
+                                    list.get(pos).setChoice("1");
+                                    break;
+                                case "NO":
+                                    list.get(pos).setChoice("0");
+                                    break;
+                                case "N/A":
+                                    list.get(pos).setChoice("NA");
+                                    break;
+                                case "SKIP":
+                                    list.get(pos).setChoice("SKIP");
+                                    break;
+                            }
+
+                            if (onClickRadioListener != null) {
+                                onClickRadioListener.onClickRadio(pos);
+                            }
+                        }
+                    });
                 }
-            });
-        }
+            }
         }
 
         int checkedRadioId = rg.getCheckedRadioButtonId();

@@ -190,7 +190,6 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
 
         review.setVisibility(View.GONE);
         header.setText(AssessmentPart.desc + "    >    "+hdesc);
-        ansitems.setText("Answer item(s) : "+db.countanswer(AssessmentPart.id,hid,HomeActivity.appid));
         prepareMenuData();
         populateExpandableList();
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -254,7 +253,7 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
             @Override
             public void onClickRadio(int position) {
                 save_assessment(position);
-                ansitems.setText("Answer item(s) : "+db.countanswer(AssessmentPart.id,hid,HomeActivity.appid));
+                ansitems.setText("Answer item(s) : "+db.countanswer(AssessmentPart.id,hid,HomeActivity.appid) + " of " + silist.size());
 
                 btndraft.setEnabled(true);
                 btndraft.setAlpha(1);
@@ -277,6 +276,7 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
 
 
         retrieveassessdetails();
+        ansitems.setText("Answer item(s) : "+db.countanswer(AssessmentPart.id,hid,HomeActivity.appid) + " of " + silist.size());
 //        if(checker.checkHasInternet()){
 //            Log.d("internet","true");
 //            get_showassessment();
