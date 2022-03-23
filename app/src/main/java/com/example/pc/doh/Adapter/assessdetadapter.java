@@ -30,7 +30,6 @@ public class assessdetadapter extends RecyclerView.Adapter<assessdetadapter.view
     private onTouchListener listener;
     private OnClickRadioListener onClickRadioListener;
 
-
     public interface onTouchListener{
         void onTouch(int position);
     }
@@ -49,6 +48,10 @@ public class assessdetadapter extends RecyclerView.Adapter<assessdetadapter.view
 
     public assessdetadapter(Context context, List<showassessitem> list) {
         this.context = context;
+        this.list = list;
+    }
+
+    public void setList(List<showassessitem> list) {
         this.list = list;
     }
 

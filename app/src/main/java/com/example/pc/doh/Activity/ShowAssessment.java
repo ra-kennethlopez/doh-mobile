@@ -1,13 +1,11 @@
 package com.example.pc.doh.Activity;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,23 +17,20 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.OnScrollListener;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,7 +49,6 @@ import com.example.pc.doh.Adapter.assessdetadapter;
 import com.example.pc.doh.DatabaseHelper;
 import com.example.pc.doh.InternetCheck;
 
-import com.example.pc.doh.Model.Headers;
 import com.example.pc.doh.Model.MenuModel;
 import com.example.pc.doh.Model.UserModel;
 import com.example.pc.doh.Model.showassessitem;
@@ -73,7 +67,7 @@ import java.util.Map;
 
 
 
-public class ShowAssessment extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class ShowAssessment extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
 
     TextView lblfacname;
 
@@ -87,6 +81,7 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
     DatabaseHelper db;
     InternetCheck checker;
     Button btnsubmit,btndraft;
+    Spinner spinner;
 
 
     //
@@ -94,12 +89,15 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
     TextView tooltitle;
     //list item initialize
     RecyclerView rv;
-    List<showassessitem> silist = new ArrayList<>();
+    List<showassessitem> filteredList = new ArrayList<>();
+    List<showassessitem> assessmentList = new ArrayList<>();
     assessdetadapter adapter;
     LinearLayout lcomment;
     String position = "";
 
     String hid,hdesc,pid,pdesc;
+
+    private final String[] filterChoice = {"All", "YES", "NO", "N/A", "UnAnswered"};
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -166,12 +164,20 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
         lcomment = findViewById(R.id.lcomments);
         lcomment.setVisibility(View.GONE);
         btndraft = findViewById(R.id.btndraft);
+        spinner = findViewById(R.id.spinner);
 //        btndraft.setVisibility(View.GONE);
 //        btnsubmit.setVisibility(View.GONE);
         btndraft.setEnabled(false);
         btndraft.setAlpha(.5f);
         btnsubmit.setEnabled(false);
         btnsubmit.setAlpha(.5f);
+
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter(ShowAssessment.this,
+                android.R.layout.simple_spinner_item, filterChoice);
+
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerAdapter);
+        spinner.setOnItemSelectedListener(this);
 
         tooltitle.setText("Assessment Details");
         tooltitle.setOnClickListener(new View.OnClickListener() {
@@ -224,7 +230,7 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
         //instanstiate list
 
 
-        adapter = new assessdetadapter(this,silist);
+        adapter = new assessdetadapter(this, filteredList);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
 
@@ -253,14 +259,14 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
             @Override
             public void onClickRadio(int position) {
                 save_assessment(position);
-                ansitems.setText("Answer item(s) : "+db.countanswer(AssessmentPart.id,hid,HomeActivity.appid) + " of " + silist.size());
+                ansitems.setText("Answer item(s) : "+db.countanswer(AssessmentPart.id,hid,HomeActivity.appid) + " of " + assessmentList.size());
 
                 btndraft.setEnabled(true);
                 btndraft.setAlpha(1);
 
                 boolean hasUnAnswered = false;
-                for (int c = 0; c < silist.size(); c++) {
-                    String choice = silist.get(c).getChoice();
+                for (int c = 0; c < assessmentList.size(); c++) {
+                    String choice = assessmentList.get(c).getChoice();
                     if (choice == null || choice.length() == 0) {
                         hasUnAnswered = true;
                         break;
@@ -276,7 +282,7 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
 
 
         retrieveassessdetails();
-        ansitems.setText("Answer item(s) : "+db.countanswer(AssessmentPart.id,hid,HomeActivity.appid) + " of " + silist.size());
+        ansitems.setText("Answer item(s) : "+db.countanswer(AssessmentPart.id,hid,HomeActivity.appid) + " of " + assessmentList.size());
 //        if(checker.checkHasInternet()){
 //            Log.d("internet","true");
 //            get_showassessment();
@@ -290,7 +296,7 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
             @Override
             public void onClick(View v) {
 
-                if(silist.size() == 1){
+                if(filteredList.size() == 1){
                     save_assessment(0);
                     save_assessment_header();
                 }else{
@@ -299,14 +305,14 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
                     boolean skipcheck = false;
                     //check if all results are answer
                     int index = 0;
-                    for(int i=0;i<silist.size();i++){
-                        if(silist.get(i).getChoice().equals("")){
+                    for(int i = 0; i< filteredList.size(); i++){
+                        if(filteredList.get(i).getChoice().equals("")){
                             Log.d("choice","true");
                             index = i;
                             check = true;
                             break;
                         }
-                        else if(silist.get(i).getChoice().equals("SKIP"))
+                        else if(filteredList.get(i).getChoice().equals("SKIP"))
                         {
                             skipcheck = true;
                         }
@@ -375,7 +381,7 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
 //
 //            }
 //        });
-        items.setText("1 of "+silist.size());
+        items.setText("1 of "+ filteredList.size());
     }
 
     @Override
@@ -386,14 +392,14 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
     }
 
     private void saveAssessment(int pos, String remarks) {
-        String choice = silist.get(pos).getChoice();
+        String choice = filteredList.get(pos).getChoice();
 
         if (remarks != null && remarks.length() == 0) {
-            silist.get(pos).setRemarks(remarks);
+            filteredList.get(pos).setRemarks(remarks);
         }
 
         if (choice != null && choice.length() > 0) {
-            String dupid = db.get_tbl_assesscombinedheaderone(HomeActivity.appid,uid,silist.get(pos).getId(),hid);
+            String dupid = db.get_tbl_assesscombinedheaderone(HomeActivity.appid,uid, filteredList.get(pos).getId(),hid);
             if (db.checkDatas("assesscombined", "dupID", dupid)){
                 Log.d("check","true");
                 Boolean check = db.get_tbl_assesscombineduid(dupid,uid);
@@ -411,7 +417,7 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
                 Log.d("check","false");
                 String[] dcolumns = {"asmtComb_FK", "assessmentName", "assessmentSeq","assessmentHead","asmtH3ID_FK","h3name","asmtH2ID_FK","h2name","asmtH1ID_FK","h1name","partID",
                         "evaluation","remarks","evaluatedBy","appid","monid","epos","ename"};
-                String[] datas = {silist.get(pos).getId(),silist.get(pos).getDisp(),silist.get(pos).getSequence(),silist.get(pos).getOtherheading(),
+                String[] datas = {filteredList.get(pos).getId(), filteredList.get(pos).getDisp(), filteredList.get(pos).getSequence(), filteredList.get(pos).getOtherheading(),
                         AssessmentPart.id,AssessmentPart.desc,AssessmentHeaderOne.asmt2id,AssessmentHeaderOne.asmt2desc,
                         hid,hdesc,hid,choice,remarks,uid,HomeActivity.appid,"",position,uname};
                 if (db.add("assesscombined", dcolumns, datas, "")) {
@@ -608,7 +614,8 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
                                     remarks = db.get_tbl_assesscombinedremarks(HomeActivity.appid,uid,id,hid);
                                 }
                             }
-                            silist.add(new showassessitem(desc,choice,remarks,id,otherhead,seq));
+                            assessmentList.add(new showassessitem(desc,choice,remarks,id,otherhead,seq));
+                            filteredList.add(new showassessitem(desc,choice,remarks,id,otherhead,seq));
                         }
                     }else{
 
@@ -690,7 +697,7 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
                                         remarks = db.get_tbl_assesscombinedremarks(HomeActivity.appid,uid,id,hid);
                                         }
                                     }
-                                    silist.add(new showassessitem(desc,choice,remarks,id,otherhead,seq));
+                                    filteredList.add(new showassessitem(desc,choice,remarks,id,otherhead,seq));
                                 }
                             }else{
 
@@ -930,6 +937,59 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+//        case "YES":
+//        list.get(pos).setChoice("1");
+//        break;
+//        case "NO":
+//        list.get(pos).setChoice("0");
+//        break;
+//        case "N/A":
+//        list.get(pos).setChoice("NA");
+//        break;
+//        case "SKIP":
+//        list.get(pos).setChoice("SKIP");
+        filteredList = new ArrayList<>();
+        for (int c = 0; c < assessmentList.size(); c++) {
+            showassessitem item = assessmentList.get(c);
+            switch (i) {
+                case 0: // All
+                    filteredList.add(item);
+                    break;
+                case 1: // YES
+                    if (item.getChoice().equals("1")) {
+                        filteredList.add(item);
+                    }
+                    break;
+                case 2: // NO
+                    if (item.getChoice().equals("0")) {
+                        filteredList.add(item);
+                    }
+                    break;
+                case 3: // N/A
+                    if (item.getChoice().equals("NA")) {
+                        filteredList.add(item);
+                    }
+                    break;
+                case 4: // UnAnswered
+                    if (item.getChoice() == null || item.getChoice().length() == 0) {
+                        filteredList.add(item);
+                    }
+                    break;
+            }
+        }
+
+        adapter.setList(filteredList);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
 
     }
 
