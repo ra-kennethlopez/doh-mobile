@@ -267,7 +267,7 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
                 boolean hasUnAnswered = false;
                 for (int c = 0; c < assessmentList.size(); c++) {
                     String choice = assessmentList.get(c).getChoice();
-                    if (choice == null || choice.length() == 0) {
+                    if (choice == null || choice.length() == 0 || choice.equals("-1")) {
                         hasUnAnswered = true;
                         break;
                     }
@@ -942,18 +942,6 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
-//        case "YES":
-//        list.get(pos).setChoice("1");
-//        break;
-//        case "NO":
-//        list.get(pos).setChoice("0");
-//        break;
-//        case "N/A":
-//        list.get(pos).setChoice("NA");
-//        break;
-//        case "SKIP":
-//        list.get(pos).setChoice("SKIP");
         filteredList = new ArrayList<>();
         for (int c = 0; c < assessmentList.size(); c++) {
             showassessitem item = assessmentList.get(c);
@@ -977,7 +965,7 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
                     }
                     break;
                 case 4: // UnAnswered
-                    if (item.getChoice() == null || item.getChoice().length() == 0) {
+                    if (item.getChoice() == null || item.getChoice().length() == 0 || item.getChoice().equals("-1")) {
                         filteredList.add(item);
                     }
                     break;

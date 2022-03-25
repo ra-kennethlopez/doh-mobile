@@ -176,7 +176,7 @@ public class assessdetadapter extends RecyclerView.Adapter<assessdetadapter.view
     @Override
     public void onBindViewHolder(@NonNull final viewholder viewholder, int i) {
         int id = (i+1)*100;
-        RadioGroup rg = viewholder.rgchoice;
+        final RadioGroup rg = viewholder.rgchoice;
 
         String remarks = list.get(i).getRemarks();
         if(remarks.equals("")){
@@ -195,6 +195,17 @@ public class assessdetadapter extends RecyclerView.Adapter<assessdetadapter.view
                     rg.getChildAt(c).setVisibility(View.GONE);
                 } else {
                     rg.getChildAt(c).setOnClickListener(new View.OnClickListener() {
+                        public void setChoice(String choice) {
+                            int pos = viewholder.getAdapterPosition();
+
+                            if (list.get(pos).getChoice().equals(choice)) {
+                                list.get(pos).setChoice("-1");
+                                rg.clearCheck();
+                            } else {
+                                list.get(pos).setChoice(choice);
+                            }
+                        }
+
                         @Override
                         public void onClick(View view) {
                             String selected = ((RadioButton) view).getText().toString();
@@ -202,16 +213,16 @@ public class assessdetadapter extends RecyclerView.Adapter<assessdetadapter.view
 
                             switch (selected) {
                                 case "YES":
-                                    list.get(pos).setChoice("1");
+                                    setChoice("1");
                                     break;
                                 case "NO":
-                                    list.get(pos).setChoice("0");
+                                    setChoice("0");
                                     break;
                                 case "N/A":
-                                    list.get(pos).setChoice("NA");
+                                    setChoice("NA");
                                     break;
                                 case "SKIP":
-                                    list.get(pos).setChoice("SKIP");
+                                    setChoice("SKIP");
                                     break;
                             }
 
