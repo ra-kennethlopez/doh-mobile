@@ -46,6 +46,17 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:scrollbarAlwaysDrawVerticalTrack="true">
+
+                <TextView
+                    android:id="@+id/lblmessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="No Monitoring Items Found"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:visibility="gone"
+                    />
+
                 <ProgressBar
                     android:id="@+id/asesssProgress"
                     android:layout_width="match_parent"
@@ -78,14 +89,6 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent">
                             </android.support.v7.widget.RecyclerView>
-
-                            <TextView
-                                android:id="@+id/lblmessage"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:text="No Monitoring Items Found"
-                                android:gravity="center"
-                                android:visibility="gone"/>
                         </LinearLayout>
                     </ScrollView>
                 </android.support.v4.widget.SwipeRefreshLayout>

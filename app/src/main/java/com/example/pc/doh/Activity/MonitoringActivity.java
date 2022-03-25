@@ -57,6 +57,7 @@ public class MonitoringActivity extends AppCompatActivity {
     RecyclerView monitorrv;
     MonitoringAdapter adapter;
     List<Monitoring> list = new ArrayList<>();
+    TextView lblMessage;
     public static String type,code,faclityname,typefacility,date,status,appid;
     public static String monType;
     private String uid;
@@ -69,6 +70,8 @@ public class MonitoringActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.monitoring_layout);
+
+        lblMessage = findViewById(R.id.lblmessage);
 
         UserModel user = SharedPrefManager.getInstance(this).getUser();
 
@@ -100,30 +103,34 @@ public class MonitoringActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Monitoring");
 
 
+        getMonitoringData();
+
+        swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getMonitoringData();
+                swipe.setRefreshing(false);
+            }
+        });
+
+    }
+
+    public void getMonitoringData() {
+        list.clear();
+
         if(!checker.checkHasInternet()){
             Log.d("internet","false");
             get_monitoring_offline();
-
         }else{
             Log.d("internet","true");
             get_monitoring_online();
         }
 
-        swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                list.clear();
-                if(!checker.checkHasInternet()){
-                    Log.d("internet","false");
-                    get_monitoring_offline();
-                }else{
-                    Log.d("internet","true");
-                    get_monitoring_online();
-                }
-                swipe.setRefreshing(false);
-            }
-        });
-
+        if (list.size() == 0) {
+            lblMessage.setVisibility(View.VISIBLE);
+        } else {
+            lblMessage.setVisibility(View.GONE);
+        }
     }
 
     public void setAdapter(){
