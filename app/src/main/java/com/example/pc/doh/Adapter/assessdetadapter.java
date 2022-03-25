@@ -3,7 +3,9 @@ package com.example.pc.doh.Adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.Html;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -29,6 +31,7 @@ public class assessdetadapter extends RecyclerView.Adapter<assessdetadapter.view
     private List<showassessitem> list;
     private onTouchListener listener;
     private OnClickRadioListener onClickRadioListener;
+    private OnRemarksTextChangeListener onRemarksTextChangeListener;
 
     public interface onTouchListener{
         void onTouch(int position);
@@ -38,12 +41,20 @@ public class assessdetadapter extends RecyclerView.Adapter<assessdetadapter.view
         void onClickRadio(int position);
     }
 
+    public interface OnRemarksTextChangeListener {
+        void onRemarksTextChange(int position);
+    }
+
     public void addItemTouchListener(onTouchListener mlistener){
         listener = mlistener;
     }
 
     public void addClickRadioListener(OnClickRadioListener listener) {
         onClickRadioListener = listener;
+    }
+
+    public void addRemarksTextChangeListener(OnRemarksTextChangeListener listener) {
+        onRemarksTextChangeListener = listener;
     }
 
     public assessdetadapter(Context context, List<showassessitem> list) {
@@ -177,6 +188,32 @@ public class assessdetadapter extends RecyclerView.Adapter<assessdetadapter.view
     public void onBindViewHolder(@NonNull final viewholder viewholder, int i) {
         int id = (i+1)*100;
         final RadioGroup rg = viewholder.rgchoice;
+        EditText editTextRemarks = viewholder.remarks;
+
+        editTextRemarks.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                int pos = viewholder.getAdapterPosition();
+                String remarks = editable.toString();
+
+                if (!remarks.equals(list.get(pos).getRemarks())) {
+                    list.get(pos).setRemarks(remarks);
+                    if (onRemarksTextChangeListener != null) {
+                        onRemarksTextChangeListener.onRemarksTextChange(pos);
+                    }
+                }
+            }
+        });
 
         String remarks = list.get(i).getRemarks();
         if(remarks.equals("")){

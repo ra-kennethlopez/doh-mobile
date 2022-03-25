@@ -64,7 +64,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class ShowAssessment extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
@@ -280,6 +281,29 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
             }
         });
 
+        adapter.addRemarksTextChangeListener(new assessdetadapter.OnRemarksTextChangeListener() {
+            @Override
+            public void onRemarksTextChange(final int position) {
+                // needs to be optimized
+//                new Timer().schedule(
+//                        new TimerTask() {
+//                            @Override
+//                            public void run() {
+//                                save_assessment(position);
+//
+//                                btndraft.setEnabled(true);
+//                                btndraft.setAlpha(1);
+//                            }
+//                        },
+//                        500
+//                );
+                save_assessment(position);
+
+                btndraft.setEnabled(true);
+                btndraft.setAlpha(1);
+            }
+        });
+
 
         retrieveassessdetails();
         ansitems.setText("Answer item(s) : "+db.countanswer(AssessmentPart.id,hid,HomeActivity.appid) + " of " + assessmentList.size());
@@ -394,47 +418,52 @@ public class ShowAssessment extends AppCompatActivity implements NavigationView.
     private void saveAssessment(int pos, String remarks) {
         String choice = filteredList.get(pos).getChoice();
 
-        if (remarks != null && remarks.length() == 0) {
-            filteredList.get(pos).setRemarks(remarks);
-        }
+//        if (remarks != null && remarks.length() == 0) {
+//            filteredList.get(pos).setRemarks(remarks);
+//        }
 
-        if (choice != null && choice.length() > 0) {
-            String dupid = db.get_tbl_assesscombinedheaderone(HomeActivity.appid,uid, filteredList.get(pos).getId(),hid);
-            if (db.checkDatas("assesscombined", "dupID", dupid)){
-                Log.d("check","true");
-                Boolean check = db.get_tbl_assesscombineduid(dupid,uid);
-                if(check){
-                    String[] ucolumns = {"evaluation","remarks"};
-                    String[] udata = {choice,remarks};
-                    if (db.update("assesscombined", ucolumns, udata, "dupid",dupid)) {
-                        Log.d("updatedata", "update");
+        try {
+            if ((choice != null && choice.length() > 0) || remarks != null) {
+                String dupid = db.get_tbl_assesscombinedheaderone(HomeActivity.appid,uid, filteredList.get(pos).getId(),hid);
+                if (db.checkDatas("assesscombined", "dupID", dupid)){
+                    Log.d("check","true");
+                    Boolean check = db.get_tbl_assesscombineduid(dupid,uid);
+                    if(check){
+                        String[] ucolumns = {"evaluation","remarks"};
+                        String[] udata = {choice,remarks};
+                        if (db.update("assesscombined", ucolumns, udata, "dupid",dupid)) {
+                            Log.d("updatedata", "update");
+                            //Toast.makeText(getApplicationContext(),"Save Answer",Toast.LENGTH_SHORT).show();
+                        } else {
+                            Log.d("updatedata", "not update");
+                        }
+                    }
+                }else{
+                    Log.d("check","false");
+                    String[] dcolumns = {"asmtComb_FK", "assessmentName", "assessmentSeq","assessmentHead","asmtH3ID_FK","h3name","asmtH2ID_FK","h2name","asmtH1ID_FK","h1name","partID",
+                            "evaluation","remarks","evaluatedBy","appid","monid","epos","ename"};
+                    String[] datas = {filteredList.get(pos).getId(), filteredList.get(pos).getDisp(), filteredList.get(pos).getSequence(), filteredList.get(pos).getOtherheading(),
+                            AssessmentPart.id,AssessmentPart.desc,AssessmentHeaderOne.asmt2id,AssessmentHeaderOne.asmt2desc,
+                            hid,hdesc,hid,choice,remarks,uid,HomeActivity.appid,"",position,uname};
+                    if (db.add("assesscombined", dcolumns, datas, "")) {
+                        Log.d("assesscombined", "added");
                         //Toast.makeText(getApplicationContext(),"Save Answer",Toast.LENGTH_SHORT).show();
                     } else {
-                        Log.d("updatedata", "not update");
+                        Log.d("assesscombined", "not added");
                     }
                 }
-            }else{
-                Log.d("check","false");
-                String[] dcolumns = {"asmtComb_FK", "assessmentName", "assessmentSeq","assessmentHead","asmtH3ID_FK","h3name","asmtH2ID_FK","h2name","asmtH1ID_FK","h1name","partID",
-                        "evaluation","remarks","evaluatedBy","appid","monid","epos","ename"};
-                String[] datas = {filteredList.get(pos).getId(), filteredList.get(pos).getDisp(), filteredList.get(pos).getSequence(), filteredList.get(pos).getOtherheading(),
-                        AssessmentPart.id,AssessmentPart.desc,AssessmentHeaderOne.asmt2id,AssessmentHeaderOne.asmt2desc,
-                        hid,hdesc,hid,choice,remarks,uid,HomeActivity.appid,"",position,uname};
-                if (db.add("assesscombined", dcolumns, datas, "")) {
-                    Log.d("assesscombined", "added");
-                    //Toast.makeText(getApplicationContext(),"Save Answer",Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.d("assesscombined", "not added");
-                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
     private void save_assessment(int pos){
         View view = rv.findViewWithTag(pos);
         if(view != null) {
-            EditText remark = view.findViewById(R.id.remark);
-            saveAssessment(pos, remark.getText().toString());
+//            EditText remark = view.findViewById(R.id.remark);
+            saveAssessment(pos, filteredList.get(pos).getRemarks());
         }
     }
 
