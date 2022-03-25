@@ -305,10 +305,11 @@ public class MonitoringActivity extends AppCompatActivity {
                             adapter.notifyDataSetChanged();
                             Log.d("monitorresponse",response);
 
-                            bar.setVisibility(View.GONE);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+
+                        bar.setVisibility(View.GONE);
                         Log.d("monitoring",response);
                     }
                 }, new Response.ErrorListener() {
