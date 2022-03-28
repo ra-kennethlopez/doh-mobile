@@ -125,7 +125,9 @@ public class MonitoringActivity extends AppCompatActivity {
             Log.d("internet","true");
             get_monitoring_online();
         }
+    }
 
+    private void showHideEmptyDataMessage() {
         if (list.size() == 0) {
             lblMessage.setVisibility(View.VISIBLE);
         } else {
@@ -254,6 +256,8 @@ public class MonitoringActivity extends AppCompatActivity {
             }
 
         }
+
+        showHideEmptyDataMessage();
     }
 
     private void get_monitoring_online(){
@@ -282,15 +286,16 @@ public class MonitoringActivity extends AppCompatActivity {
                                         Log.d("tbl_monitoring","not added");
                                     }
                                 }
-                              //JSONArray jsonArray = new JSONArray(response);
-                              JSONObject obj = new JSONObject(response);
+                              JSONArray jsonArray = new JSONArray(response);
+//                              JSONObject obj = new JSONObject(response);
                               //Log.d("daa",jsonArray.getJSONArray(0).toString());
-                              JSONArray items = obj.getJSONArray("data");
+                              JSONArray items = jsonArray.getJSONArray(0);
                             for(int i=0;i<items.length();i++){
                                 String id = items.getJSONObject(i).getString("monid");
                                 String date = items.getJSONObject(i).getString("date_added");
                                 //String status = items.getJSONObject(i).getString("assessmentStatus");
-                                String status = items.getJSONObject(i).getString("monStatus");
+//                                String status = items.getJSONObject(i).getString("monStatus");
+                                String status = items.getJSONObject(i).getString("status");
                                 String facilityname = items.getJSONObject(i).getString("name_of_faci");
                                 String code = items.getJSONObject(i).getString("type_of_faci");
                                 String typefacility = items.getJSONObject(i).getString("type_of_faci");
@@ -311,6 +316,8 @@ public class MonitoringActivity extends AppCompatActivity {
 
                         bar.setVisibility(View.GONE);
                         Log.d("monitoring",response);
+
+                        showHideEmptyDataMessage();
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -321,7 +328,7 @@ public class MonitoringActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String,String> params = new HashMap<>();
-                params.put("isMobile","dan");
+                params.put("isMobile","true");
                 params.put("uid",uid);
                 return params;
             }
