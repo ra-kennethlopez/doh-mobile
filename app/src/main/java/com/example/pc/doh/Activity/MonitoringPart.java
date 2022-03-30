@@ -303,20 +303,26 @@ public class MonitoringPart extends AppCompatActivity implements View.OnClickLis
                             JSONArray head = obj.getJSONArray("head");
                             int countassess = 0;
                             if(head.length()>0){
+                                List<String> unique = new ArrayList<>();
+
                                 for(int i =0;i<head.length();i++){
                                     String id = head.getJSONObject(i).getString("id");
                                     String desc =head.getJSONObject(i).getString("desc");
                                     String hid = db.get_tbl_assessment_headermon(MonitoringActivity.appid,uid,id,"0",MonitoringActivity.type);
                                     String assess = "false";
-                                    if (db.checkDatas("tbl_save_assessment_header", "assessheadid", hid)){
-                                        Log.d("found","true");
-                                        countassess++;
-                                        assess = db.get_tbl_assessment_header_assessmon(MonitoringActivity.appid,uid,id,"0",MonitoringActivity.type);
+
+                                    if (!unique.contains(id)) {
+                                        if (db.checkDatas("tbl_save_assessment_header", "assessheadid", hid)){
+                                            Log.d("found","true");
+                                            countassess++;
+                                            assess = db.get_tbl_assessment_header_assessmon(MonitoringActivity.appid,uid,id,"0",MonitoringActivity.type);
+                                        }
+                                        //jsonArray.put(item);
+                                        Log.d("assess",assess);
+                                        list.add(new Headers(id,desc,assess,"",""));
+                                        unique.add(id);
+                                        get_headerone_online(id);
                                     }
-                                    //jsonArray.put(item);
-                                    Log.d("assess",assess);
-                                    list.add(new Headers(id,desc,assess,"",""));
-                                    get_headerone_online(id);
                                 }
                             }else{
                             }
