@@ -244,7 +244,8 @@ public class MonitoringActivity extends AppCompatActivity {
                             typefacility = "";
                         }
                         String appid = jsonArray.getJSONObject(i).getString("appid");
-                        list.add(new Monitoring(id,code,facilityname,typefacility,date,status,appid));
+//                        list.add(new Monitoring(id,code,facilityname,typefacility,date,status,appid));
+                        list.add(new Monitoring(id,code,facilityname,typefacility,date,status,id));
                     }
                     setAdapter();
                     adapter.notifyDataSetChanged();
@@ -304,7 +305,8 @@ public class MonitoringActivity extends AppCompatActivity {
                                 }
 
                                 String appid = items.getJSONObject(i).getString("appid");
-                                list.add(new Monitoring(id,code,facilityname,typefacility,date,status,appid));
+//                                list.add(new Monitoring(id,code,facilityname,typefacility,date,status,appid));
+                                list.add(new Monitoring(id,code,facilityname,typefacility,date,status,id));
                             }
                             setAdapter();
                             adapter.notifyDataSetChanged();
