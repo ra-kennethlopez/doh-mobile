@@ -22,6 +22,8 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
@@ -29,6 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,7 +64,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MonShowAssessment extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MonShowAssessment extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemSelectedListener {
 
     TextView lblfacname;
 
@@ -76,16 +79,21 @@ public class MonShowAssessment extends AppCompatActivity implements NavigationVi
     InternetCheck checker;
     Button btnsubmit,btndraft;
     LinearLayout lcomment;
+    Spinner spinner;
 
     //
 
     TextView tooltitle;
     //list item initialize
     RecyclerView rv;
-    List<showassessitem> silist = new ArrayList<>();
+    List<showassessitem> filteredList = new ArrayList<>();
+    List<showassessitem> assessmentList = new ArrayList<>();
+//    List<showassessitem> silist = new ArrayList<>();
     assessdetadapter adapter;
     String position = "";
     String hid,hdesc;
+
+    private final String[] filterChoice = {"All", "YES", "NO", "N/A", "UnAnswered"};
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -146,8 +154,21 @@ public class MonShowAssessment extends AppCompatActivity implements NavigationVi
         btndraft = findViewById(R.id.btndraft);
         lcomment = findViewById(R.id.lcomments);
         lcomment.setVisibility(View.GONE);
-        btndraft.setVisibility(View.GONE);
-        btnsubmit.setVisibility(View.GONE);
+        spinner = findViewById(R.id.spinner);
+//        btndraft.setVisibility(View.GONE);
+//        btnsubmit.setVisibility(View.GONE);
+        btndraft.setEnabled(false);
+        btndraft.setAlpha(.5f);
+        btnsubmit.setEnabled(false);
+        btnsubmit.setAlpha(.5f);
+
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter(MonShowAssessment.this,
+                android.R.layout.simple_spinner_item, filterChoice);
+
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerAdapter);
+        spinner.setOnItemSelectedListener(this);
+
         tooltitle.setText("Assessment Details");
         tooltitle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -163,8 +184,7 @@ public class MonShowAssessment extends AppCompatActivity implements NavigationVi
         lblfacname.setText(MonitoringActivity.faclityname);
         review.setVisibility(View.GONE);
         header.setText(MonitoringPart.desc + "    >    "+hdesc);
-        ansitems.setText("Answer item(s) : "+db.countanswermon(MonitoringPart.id,hid, MonitoringActivity.appid,
-                MonitoringActivity.type)+"");
+        ansitems.setText("Answer item(s) : "+db.countanswermon(MonitoringPart.id,hid, MonitoringActivity.appid,MonitoringActivity.type)+" of " + assessmentList.size());
         prepareMenuData();
         populateExpandableList();
 
@@ -195,31 +215,81 @@ public class MonShowAssessment extends AppCompatActivity implements NavigationVi
             }
         });
 
-        adapter = new assessdetadapter(this,silist);
+        adapter = new assessdetadapter(this,filteredList);
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
-        adapter.addItemTouchListener(new assessdetadapter.onTouchListener() {
-            @Override
-            public void onTouch(int position) {
-                int size = silist.size() - 1;
-                if(size == position)
-                {
-                    btnsubmit.setVisibility(View.VISIBLE);
-                    btndraft.setVisibility(View.VISIBLE);
-                }else{
-                    btnsubmit.setVisibility(View.GONE);
-                    btndraft.setVisibility(View.GONE);
-                }
-                Log.d("touch",position+"");
-                save_assessment(position);
-                int page = position + 1;
-                ansitems.setText("Answer item(s) : "+db.countanswermon(MonitoringPart.id,hid, MonitoringActivity.appid,MonitoringActivity.type));
-                items.setText(page+" of "+silist.size());
 
+//        adapter.addItemTouchListener(new assessdetadapter.onTouchListener() {
+//            @Override
+//            public void onTouch(int position) {
+//                int size = silist.size() - 1;
+//                if(size == position)
+//                {
+//                    btnsubmit.setVisibility(View.VISIBLE);
+//                    btndraft.setVisibility(View.VISIBLE);
+//                }else{
+//                    btnsubmit.setVisibility(View.GONE);
+//                    btndraft.setVisibility(View.GONE);
+//                }
+//                Log.d("touch",position+"");
+//                save_assessment(position);
+//                int page = position + 1;
+//                ansitems.setText("Answer item(s) : "+db.countanswermon(MonitoringPart.id,hid, MonitoringActivity.appid,MonitoringActivity.type));
+//                items.setText(page+" of "+silist.size());
+//
+//            }
+//        });
+
+        adapter.addClickRadioListener(new assessdetadapter.OnClickRadioListener() {
+            @Override
+            public void onClickRadio(int position) {
+                save_assessment(position);
+                ansitems.setText("Answer item(s) : "+db.countanswermon(MonitoringPart.id,hid, MonitoringActivity.appid,MonitoringActivity.type)+" of " + assessmentList.size());
+
+                btndraft.setEnabled(true);
+                btndraft.setAlpha(1);
+
+                boolean hasUnAnswered = false;
+                for (int c = 0; c < assessmentList.size(); c++) {
+                    String choice = assessmentList.get(c).getChoice();
+                    if (choice == null || choice.length() == 0 || choice.equals("-1")) {
+                        hasUnAnswered = true;
+                        break;
+                    }
+                }
+
+                if (!hasUnAnswered) {
+                    btnsubmit.setEnabled(true);
+                    btnsubmit.setAlpha(1);
+                }
+            }
+        });
+
+        adapter.addRemarksTextChangeListener(new assessdetadapter.OnRemarksTextChangeListener() {
+            @Override
+            public void onRemarksTextChange(final int position) {
+                // needs to be optimized
+//                new Timer().schedule(
+//                        new TimerTask() {
+//                            @Override
+//                            public void run() {
+//                                save_assessment(position);
+//
+//                                btndraft.setEnabled(true);
+//                                btndraft.setAlpha(1);
+//                            }
+//                        },
+//                        500
+//                );
+                save_assessment(position);
+
+                btndraft.setEnabled(true);
+                btndraft.setAlpha(1);
             }
         });
 
        retrieveassessdetails();
+       ansitems.setText("Answer item(s) : "+db.countanswermon(MonitoringPart.id,hid, MonitoringActivity.appid,MonitoringActivity.type)+" of " + assessmentList.size());
 //        if(checker.checkHasInternet()){
 //            Log.d("internet","true");
 //            get_showassessment();
@@ -233,7 +303,7 @@ public class MonShowAssessment extends AppCompatActivity implements NavigationVi
             @Override
             public void onClick(View v) {
 
-               if(silist.size() == 1){
+               if(filteredList.size() == 1){
                     save_assessment(0);
                     save_assessment_header();
                 }else{
@@ -242,13 +312,13 @@ public class MonShowAssessment extends AppCompatActivity implements NavigationVi
                     boolean skipcheck = false;
                     //check if all results are answer
                    int index = 0;
-                    for(int i=0;i<silist.size();i++){
-                       if(silist.get(i).getChoice().equals("")){
+                    for(int i=0;i<filteredList.size();i++){
+                       if(filteredList.get(i).getChoice().equals("")){
                            Log.d("choice","true");
                            index = i;
                            check = true;
                            break;
-                       }else if(silist.get(i).getChoice().equals("SKIP"))
+                       }else if(filteredList.get(i).getChoice().equals("SKIP"))
                        {
                            skipcheck = true;
                        }
@@ -301,7 +371,7 @@ public class MonShowAssessment extends AppCompatActivity implements NavigationVi
             }
         });
 
-        items.setText("1 of "+silist.size());
+        items.setText("1 of "+filteredList.size());
 
 
     }
@@ -313,68 +383,18 @@ public class MonShowAssessment extends AppCompatActivity implements NavigationVi
         super.onBackPressed();
     }
 
-    private void save_assessment(int pos){
-        View view =rv.findViewWithTag(pos);
-        if(view!=null){
-            EditText txtr = view.findViewById(R.id.remark);
-            RadioGroup r = view.findViewById(R.id.rgchoice);
-            int selectedId = r.getCheckedRadioButtonId();
-            String choice = "";
-            //rv.setNestedScrollingEnabled(true);
+    private void saveAssessment(int pos, String remarks) {
+        String choice = filteredList.get(pos).getChoice();
 
-            switch (selectedId){
-                case R.id.yes:
-                    choice = "1";
-                    //txtr.setError(null);
-                    rv.setLayoutFrozen(false);
-                    silist.get(pos).setChoice("1");
-                    break;
-                case R.id.no:
-                    choice = "0";
-                    silist.get(pos).setChoice("0");
-                    rv.setLayoutFrozen(false);
-                    /*
-                    if(TextUtils.isEmpty(txtr.getText().toString())){
-                        txtr.setError("Please Enter your Remarks. Thank You");
-                        rv.setNestedScrollingEnabled(false);
-                        return;
-                    }*/
-                    break;
-                case R.id.na:
-                    silist.get(pos).setChoice("NA");
-                    rv.setLayoutFrozen(false);
-                    choice = "NA";
-                    break;
-                case R.id.skip:
-                    silist.get(pos).setChoice("SKIP");
-                    rv.setLayoutFrozen(false);
-                    choice = "SKIP";
-                    break;
-                default:
-                    choice = "nochoice";
-                    Toast.makeText(getApplicationContext(),"Please Choose your Answer",Toast.LENGTH_SHORT).show();
-                    rv.scrollToPosition(pos);
-                    rv.setLayoutFrozen(true);
-                    break;
-
-            }
-            if(txtr.getText().toString() != null && !txtr.getText().toString().equals("")){
-                Log.d("remark",txtr.getText().toString());
-                silist.get(pos).setRemarks(txtr.getText().toString());
-            }
-            Log.d("choice",choice);
-            Log.d("id",silist.get(pos).getId());
-            Log.d("desc",silist.get(pos).getDisp());
-            Log.d("otherheading",silist.get(pos).getOtherheading());
-            Log.d("sequence",silist.get(pos).getSequence());
-            if(choice != "nochoice"){
-                String dupid = db.get_tbl_assesscombinedheaderonemon(MonitoringActivity.appid,uid,silist.get(pos).getId(),hid,MonitoringActivity.type);
+        try {
+            if ((choice != null && choice.length() > 0) || remarks != null) {
+                String dupid = db.get_tbl_assesscombinedheaderonemon(MonitoringActivity.appid,uid,filteredList.get(pos).getId(),hid,MonitoringActivity.type);
                 if (db.checkDatas("assesscombined", "dupID", dupid)){
                     Log.d("check","true");
                     Boolean check = db.get_tbl_assesscombineduid(dupid,uid);
                     if(check){
                         String[] ucolumns = {"evaluation","remarks"};
-                        String[] udata = {choice,txtr.getText().toString()};
+                        String[] udata = {choice,remarks};
                         if (db.update("assesscombined", ucolumns, udata, "dupid",dupid)) {
                             Log.d("updatedata", "update");
                         } else {
@@ -385,9 +405,9 @@ public class MonShowAssessment extends AppCompatActivity implements NavigationVi
                     Log.d("check","false");
                     String[] dcolumns = {"asmtComb_FK", "assessmentName", "assessmentSeq","assessmentHead","asmtH3ID_FK","h3name","asmtH2ID_FK","h2name","asmtH1ID_FK","h1name",
                             "evaluation","remarks","evaluatedBy","appid","monid","epos","ename","partID"};
-                    String[] datas = {silist.get(pos).getId(),silist.get(pos).getDisp(),silist.get(pos).getSequence(),silist.get(pos).getOtherheading(),
+                    String[] datas = {filteredList.get(pos).getId(),filteredList.get(pos).getDisp(),filteredList.get(pos).getSequence(),filteredList.get(pos).getOtherheading(),
                             MonitoringPart.id,MonitoringPart.desc,"","",
-                            hid,hdesc,choice,txtr.getText().toString(),uid,MonitoringActivity.appid,MonitoringActivity.type,position,uname,MonitoringPart.id};
+                            hid,hdesc,choice,remarks,uid,MonitoringActivity.appid,MonitoringActivity.type,position,uname,MonitoringPart.id};
 
                     if (db.add("assesscombined", dcolumns, datas, "")) {
                         Log.d("assesscombined", "added");
@@ -395,11 +415,107 @@ public class MonShowAssessment extends AppCompatActivity implements NavigationVi
                         Log.d("assesscombined", "not added");
                     }
                 }
-            }else{
-
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
+
+    private void save_assessment(int pos){
+        View view = rv.findViewWithTag(pos);
+        if(view != null) {
+//            EditText remark = view.findViewById(R.id.remark);
+            saveAssessment(pos, filteredList.get(pos).getRemarks());
+        }
+    }
+
+//    private void save_assessment(int pos){
+//        View view =rv.findViewWithTag(pos);
+//        if(view!=null){
+//            EditText txtr = view.findViewById(R.id.remark);
+//            RadioGroup r = view.findViewById(R.id.rgchoice);
+//            int selectedId = r.getCheckedRadioButtonId();
+//            String choice = "";
+//            //rv.setNestedScrollingEnabled(true);
+//
+//            switch (selectedId){
+//                case R.id.yes:
+//                    choice = "1";
+//                    //txtr.setError(null);
+//                    rv.setLayoutFrozen(false);
+//                    silist.get(pos).setChoice("1");
+//                    break;
+//                case R.id.no:
+//                    choice = "0";
+//                    silist.get(pos).setChoice("0");
+//                    rv.setLayoutFrozen(false);
+//                    /*
+//                    if(TextUtils.isEmpty(txtr.getText().toString())){
+//                        txtr.setError("Please Enter your Remarks. Thank You");
+//                        rv.setNestedScrollingEnabled(false);
+//                        return;
+//                    }*/
+//                    break;
+//                case R.id.na:
+//                    silist.get(pos).setChoice("NA");
+//                    rv.setLayoutFrozen(false);
+//                    choice = "NA";
+//                    break;
+//                case R.id.skip:
+//                    silist.get(pos).setChoice("SKIP");
+//                    rv.setLayoutFrozen(false);
+//                    choice = "SKIP";
+//                    break;
+//                default:
+//                    choice = "nochoice";
+//                    Toast.makeText(getApplicationContext(),"Please Choose your Answer",Toast.LENGTH_SHORT).show();
+//                    rv.scrollToPosition(pos);
+//                    rv.setLayoutFrozen(true);
+//                    break;
+//
+//            }
+//            if(txtr.getText().toString() != null && !txtr.getText().toString().equals("")){
+//                Log.d("remark",txtr.getText().toString());
+//                silist.get(pos).setRemarks(txtr.getText().toString());
+//            }
+//            Log.d("choice",choice);
+//            Log.d("id",silist.get(pos).getId());
+//            Log.d("desc",silist.get(pos).getDisp());
+//            Log.d("otherheading",silist.get(pos).getOtherheading());
+//            Log.d("sequence",silist.get(pos).getSequence());
+//            if(choice != "nochoice"){
+//                String dupid = db.get_tbl_assesscombinedheaderonemon(MonitoringActivity.appid,uid,silist.get(pos).getId(),hid,MonitoringActivity.type);
+//                if (db.checkDatas("assesscombined", "dupID", dupid)){
+//                    Log.d("check","true");
+//                    Boolean check = db.get_tbl_assesscombineduid(dupid,uid);
+//                    if(check){
+//                        String[] ucolumns = {"evaluation","remarks"};
+//                        String[] udata = {choice,txtr.getText().toString()};
+//                        if (db.update("assesscombined", ucolumns, udata, "dupid",dupid)) {
+//                            Log.d("updatedata", "update");
+//                        } else {
+//                            Log.d("updatedata", "not update");
+//                        }
+//                    }
+//                }else{
+//                    Log.d("check","false");
+//                    String[] dcolumns = {"asmtComb_FK", "assessmentName", "assessmentSeq","assessmentHead","asmtH3ID_FK","h3name","asmtH2ID_FK","h2name","asmtH1ID_FK","h1name",
+//                            "evaluation","remarks","evaluatedBy","appid","monid","epos","ename","partID"};
+//                    String[] datas = {silist.get(pos).getId(),silist.get(pos).getDisp(),silist.get(pos).getSequence(),silist.get(pos).getOtherheading(),
+//                            MonitoringPart.id,MonitoringPart.desc,"","",
+//                            hid,hdesc,choice,txtr.getText().toString(),uid,MonitoringActivity.appid,MonitoringActivity.type,position,uname,MonitoringPart.id};
+//
+//                    if (db.add("assesscombined", dcolumns, datas, "")) {
+//                        Log.d("assesscombined", "added");
+//                    } else {
+//                        Log.d("assesscombined", "not added");
+//                    }
+//                }
+//            }else{
+//
+//            }
+//        }
+//    }
 
     private void save_assessment_header(){
         String id = db.get_tbl_assessment_header_mon(MonitoringActivity.appid,uid,hid,"1",MonitoringActivity.type);
@@ -504,7 +620,7 @@ public class MonShowAssessment extends AppCompatActivity implements NavigationVi
                                             remarks = db.get_tbl_assesscombinedremarksmon(MonitoringActivity.appid,uid,id,hid,MonitoringActivity.type);
                                         }
                                     }
-                                    silist.add(new showassessitem(desc,choice,remarks,id,otherhead,seq));
+                                    filteredList.add(new showassessitem(desc,choice,remarks,id,otherhead,seq));
                                 }
                             }else{
 
@@ -582,7 +698,8 @@ public class MonShowAssessment extends AppCompatActivity implements NavigationVi
                                     remarks = db.get_tbl_assesscombinedremarksmon(MonitoringActivity.appid,uid,id,hid,MonitoringActivity.type);
                                 }
                             }
-                            silist.add(new showassessitem(desc,choice,remarks,id,otherhead,seq));
+                            assessmentList.add(new showassessitem(desc,choice,remarks,id,otherhead,seq));
+                            filteredList.add(new showassessitem(desc,choice,remarks,id,otherhead,seq));
                         }
                     }else{
 
@@ -789,5 +906,46 @@ public class MonShowAssessment extends AppCompatActivity implements NavigationVi
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         return false;
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        filteredList = new ArrayList<>();
+        for (int c = 0; c < assessmentList.size(); c++) {
+            showassessitem item = assessmentList.get(c);
+            switch (i) {
+                case 0: // All
+                    filteredList.add(item);
+                    break;
+                case 1: // YES
+                    if (item.getChoice().equals("1")) {
+                        filteredList.add(item);
+                    }
+                    break;
+                case 2: // NO
+                    if (item.getChoice().equals("0")) {
+                        filteredList.add(item);
+                    }
+                    break;
+                case 3: // N/A
+                    if (item.getChoice().equals("NA")) {
+                        filteredList.add(item);
+                    }
+                    break;
+                case 4: // UnAnswered
+                    if (item.getChoice() == null || item.getChoice().length() == 0 || item.getChoice().equals("-1")) {
+                        filteredList.add(item);
+                    }
+                    break;
+            }
+        }
+
+        adapter.setList(filteredList);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
     }
 }

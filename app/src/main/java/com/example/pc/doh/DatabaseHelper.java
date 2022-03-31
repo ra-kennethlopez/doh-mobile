@@ -1296,7 +1296,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public String countanswermon(String partid,String hid,String appid,String monid){
         SQLiteDatabase db = this.getReadableDatabase();
         String count = "";
-        Cursor c = db.rawQuery("SELECT COUNT(appid) as answer FROM assesscombined WHERE asmtH3ID_FK = '"+partid+"' AND asmtH1ID_FK = '"+hid+"' AND appid = '"+appid+"' AND monid = '"+monid+"'",null);
+        Cursor c = db.rawQuery("SELECT COUNT(appid) as answer FROM assesscombined WHERE (NOT evaluation = '-1') AND evaluation != '' AND asmtH3ID_FK = '"+partid+"' AND asmtH1ID_FK = '"+hid+"' AND appid = '"+appid+"' AND monid = '"+monid+"'",null);
         if(c!=null && c.getCount()>0){
             c.moveToFirst();
             while (!c.isAfterLast()){
