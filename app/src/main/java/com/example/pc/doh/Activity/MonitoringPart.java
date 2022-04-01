@@ -274,7 +274,8 @@ public class MonitoringPart extends AppCompatActivity implements View.OnClickLis
         //+ HomeActivity.appid + "/" + HomeActivity.type
         Log.d("appid",MonitoringActivity.appid);
         Log.d("code",MonitoringActivity.code);
-        StringRequest request = new StringRequest(Request.Method.POST, Urls.getparts+MonitoringActivity.appid+"/"+MonitoringActivity.type,
+        String s = Urls.getpartsNew+MonitoringActivity.appid+"/"+MonitoringActivity.type;
+        StringRequest request = new StringRequest(Request.Method.POST, s,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -362,7 +363,8 @@ public class MonitoringPart extends AppCompatActivity implements View.OnClickLis
 
     private void get_headerone_online(final String id){
         //Urls.getheaderone+HomeActivity.appid+"/"+id
-        StringRequest request = new StringRequest(Request.Method.POST, Urls.getheaderone+MonitoringActivity.appid+"/"+id+"/"+MonitoringActivity.type
+        String s = Urls.getheaderoneRegfac+MonitoringActivity.appid+"/"+id+"/"+MonitoringActivity.type;
+        StringRequest request = new StringRequest(Request.Method.POST, s
                 ,
                 new Response.Listener<String>() {
                     @Override
@@ -425,9 +427,9 @@ public class MonitoringPart extends AppCompatActivity implements View.OnClickLis
     }
 
     private void get_showassessment(final String id){
-        Log.d("showurl",Urls.getassessmentdet+MonitoringActivity.appid+"/"+
+        Log.d("showurl",Urls.getassessmentdetRegfac+MonitoringActivity.appid+"/"+
                 id+"/"+MonitoringActivity.type);
-        StringRequest request = new StringRequest(Request.Method.POST, Urls.getassessmentdet+MonitoringActivity.appid+"/"+
+        StringRequest request = new StringRequest(Request.Method.POST, Urls.getassessmentdetRegfac+MonitoringActivity.appid+"/"+
                 id+"/"+MonitoringActivity.type,
                 new Response.Listener<String>() {
                     @Override

@@ -17,10 +17,13 @@ public class Urls {
     public static String monitor = server + "employee/dashboard/others/monitoring/mobile/inspection/true";
     public static String getassessment = server + "employee/dashboard/processflow/assessment/";
     public static String getparts = server + "employee/dashboard/processflow/parts/";
+    public static String getpartsNew = server + "employee/dashboard/processflow/parts/new/";
     public static String getheaderone = server + "employee/dashboard/processflow/HeaderOne/";
+    public static String getheaderoneRegfac = server + "employee/dashboard/processflow/HeaderOne/regfac/";
     public static String getheadertwo = server + "employee/dashboard/processflow/HeaderTwo/";
     public static String getheaderthree = server + "employee/dashboard/processflow/HeaderThree/";
     public static String getassessmentdet = server + "employee/dashboard/processflow/ShowAssessments/";
+    public static String getassessmentdetRegfac = server + "employee/dashboard/processflow/ShowAssessments/regfac/";
     public static String assess = server + "employee/dashboard/processflow/assessment/each/";
     public static String evaluate = server + "employee/dashboard/processflow/evalution/each/";
     public static String getevaluation = server + "employee/dashboard/processflow/evalution/";
