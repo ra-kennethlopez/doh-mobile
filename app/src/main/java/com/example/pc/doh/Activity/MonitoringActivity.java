@@ -307,7 +307,7 @@ public class MonitoringActivity extends AppCompatActivity {
                                 String appid = items.getJSONObject(i).getString("appid");
                                 String regfacId = items.getJSONObject(i).getString("regfac_id");
 //                                list.add(new Monitoring(id,code,facilityname,typefacility,date,status,appid));
-                                list.add(new Monitoring(id,code,facilityname,typefacility,date,status,id));
+                                list.add(new Monitoring(id,code,facilityname,typefacility,date,status,regfacId));
                             }
                             setAdapter();
                             adapter.notifyDataSetChanged();
