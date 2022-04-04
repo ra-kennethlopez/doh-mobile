@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 
 import com.example.pc.doh.Activity.MainActivity;
 import com.example.pc.doh.Model.UserModel;
+import com.google.gson.Gson;
 
 public class SharedPrefManager {
 
@@ -44,6 +45,24 @@ public class SharedPrefManager {
         editor.putString(KEY_URL,user.getUrl());
         editor.putString(KEY_NAME,user.getName());
         editor.apply();
+    }
+
+    public void addMonGenReport(MonGenReport monGenReport) {
+        SharedPreferences sharedPreferences = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        Gson gson = new Gson();
+        String key = monGenReport.appId + ";" + monGenReport.monId;
+        editor.putString(key, gson.toJson(monGenReport));
+        editor.apply();
+    }
+
+    public MonGenReport getMonGenReport(String appid, String monid) {
+        SharedPreferences sharedPreferences = mCtx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+
+        String s = sharedPreferences.getString(appid + ";" + monid, null);
+        return gson.fromJson(s, MonGenReport.class);
     }
 
     public boolean isLoggedIn() {

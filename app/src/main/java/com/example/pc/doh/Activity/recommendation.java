@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,6 +21,7 @@ import android.widget.Toast;
 import com.blogspot.atifsoftwares.animatoolib.Animatoo;
 import com.example.pc.doh.DatabaseHelper;
 import com.example.pc.doh.Model.UserModel;
+import com.example.pc.doh.MonGenReport;
 import com.example.pc.doh.R;
 import com.example.pc.doh.SharedPrefManager;
 
@@ -55,6 +58,8 @@ public class recommendation extends AppCompatActivity implements View.OnClickLis
         pos = findViewById(R.id.pos);
         db = new DatabaseHelper(this);
 
+        enableBtnSubmit(false);
+        handleChangeFields(new EditText[]{notes, recby, pos});
 
         if (!SharedPrefManager.getInstance(this).isLoggedIn()) {
             finish();
@@ -139,6 +144,58 @@ public class recommendation extends AppCompatActivity implements View.OnClickLis
 
         btnsubmit.setOnClickListener(this);
 
+        MonGenReport monGenReport = SharedPrefManager.getInstance(this).getMonGenReport(MonitoringActivity.appid, MonitoringActivity.type);
+        if (monGenReport != null) {
+            String n = monGenReport.getDetails() != null ? monGenReport.getDetails() : "";
+            String r = monGenReport.getConforme() != null ? monGenReport.getConforme() : "";
+            String p = monGenReport.getConformeDesignation() != null ? monGenReport.getConformeDesignation() : "";
+
+            notes.setText(n);
+            recby.setText(r);
+            pos.setText(p);
+        }
+    }
+
+    private void handleChangeFields(final EditText[] texts) {
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                boolean hasEmpty = false;
+                for (int c = 0; c < texts.length; c++) {
+                    if (texts[c].getText().toString().length() == 0) {
+                        hasEmpty = true;
+                        break;
+                    }
+                }
+
+                enableBtnSubmit(!hasEmpty);
+            }
+        };
+
+        for (int c = 0; c < texts.length; c++) {
+            texts[c].removeTextChangedListener(textWatcher);
+            texts[c].addTextChangedListener(textWatcher);
+        }
+    }
+
+    private void enableBtnSubmit(boolean enabled) {
+        if (!enabled) {
+            btnsubmit.setEnabled(false);
+            btnsubmit.setAlpha(0.5f);
+        } else {
+            btnsubmit.setEnabled(true);
+            btnsubmit.setAlpha(1);
+        }
     }
 
     @Override
@@ -206,9 +263,59 @@ public class recommendation extends AppCompatActivity implements View.OnClickLis
                 }
             }
         }else{
-            String[] columns = {"choice","details", "valfrom","valto","days","monid","selfassess","revision","evaluatedby","appid",
-                    "t_details","noofbed","noofdialysis","conforme","conformeDesignation","ename"};
-            String[] datas = {choice,noted,dt1,dt2,d,MonitoringActivity.type,"","",uid,MonitoringActivity.appid,currentDateandTime,beds,dial,rec,p,uname};
+            String[] columns = {
+                    "choice",
+                    "details",
+                    "valfrom",
+                    "valto",
+                    "days",
+                    "monid",
+                    "selfassess",
+                    "revision",
+                    "evaluatedby",
+                    "appid",
+                    "t_details",
+                    "noofbed",
+                    "noofdialysis",
+                    "conforme",
+                    "conformeDesignation",
+                    "ename"
+            };
+            MonGenReport monGenReport = new MonGenReport(
+                    choice,
+                    noted,
+                    dt1,
+                    dt2,
+                    d,
+                    MonitoringActivity.type,
+                    "",
+                    "",
+                    uid,
+                    MonitoringActivity.appid,
+                    currentDateandTime,
+                    beds,
+                    dial,
+                    rec,
+                    p,
+                    uname);
+            String[] datas = {
+                    choice,
+                    noted,
+                    dt1,
+                    dt2,
+                    d,
+                    MonitoringActivity.type,
+                    "",
+                    "",
+                    uid,
+                    MonitoringActivity.appid,
+                    currentDateandTime,
+                    beds,
+                    dial,
+                    rec,
+                    p,
+                    uname
+            };
             String reco = db.getrecoidmon(MonitoringActivity.appid,MonitoringActivity.type);
             if (!db.checkDatas("assessrecommend", "reco", reco)){
                 if(db.add("assessrecommend",columns,datas,"")){
@@ -226,6 +333,8 @@ public class recommendation extends AppCompatActivity implements View.OnClickLis
                     Log.d("assessrecommend", "not update");
                 }
             }
+
+            SharedPrefManager.getInstance(this).addMonGenReport(monGenReport);
         }
 
 

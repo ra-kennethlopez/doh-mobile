@@ -174,7 +174,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void onlinelogin(){
         final String login = txtlogin.getText().toString();
         final String pass = txtpass.getText().toString();
-//        final String login = "mobileuser";
+//        final String login = "MOBILEUSER";
+//        final String pass = "!Password1234";
+
+//        final String login = "ADMIN";
 //        final String pass = "!Password1234";
 
 //        final String login = "JJSORIANO";

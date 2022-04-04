@@ -1008,7 +1008,7 @@ public class MonitoringPart extends AppCompatActivity implements View.OnClickLis
             startActivity(intent);
             Log.d("package","true");
         }else{
-            //Toast.makeText(this,"Download a PDF Viewer to see the generated PDF",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Download a PDF Viewer to see the generated PDF",Toast.LENGTH_SHORT).show();
         }
     }
 }
