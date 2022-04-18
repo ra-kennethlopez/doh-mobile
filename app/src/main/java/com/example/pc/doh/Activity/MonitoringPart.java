@@ -928,6 +928,7 @@ public class MonitoringPart extends AppCompatActivity implements View.OnClickLis
         }
         String recby = "",pos = "";
         Cursor rec = db.get_tbl_assessrecommend_mon(MonitoringActivity.appid,MonitoringActivity.type);
+        List<String> unique = new ArrayList<>();
         if(rec != null && rec.getCount()>0){
             Paragraph assess = new Paragraph("Recommendation",normal);
             document.add(assess);
@@ -935,30 +936,36 @@ public class MonitoringPart extends AppCompatActivity implements View.OnClickLis
             while(!rec.isAfterLast()){
                 Paragraph message = new Paragraph();
                 String monid = rec.getString(rec.getColumnIndex("monid"));
-                String choice = rec.getString(rec.getColumnIndex("choice"));
-                String valfrom = rec.getString(rec.getColumnIndex("valfrom"));
-                String valto = rec.getString(rec.getColumnIndex("valto"));
-                String days = rec.getString(rec.getColumnIndex("days"));
-                String noted = rec.getString(rec.getColumnIndex("details"));
-                recby = rec.getString(rec.getColumnIndex("conforme"));
-                pos = rec.getString(rec.getColumnIndex("conformeDesignation"));
-                String recoommend = "";
-                if(monid.equals("")){
-                    if(choice.equals("issuance")){
-                        recoommend = "For Issuance of License to Operate with Validity date from "+valfrom+" to "+valto;
-                        message = createParagraph(recoommend);
 
-                    }else if(choice.equals("compliance")){
-                        recoommend = "Issuance depends upon compliance to the recommendations given and submission of the following within "+
-                                days+" days from the date of inspection:";
-                        message = createParagraph(recoommend);
-                    }else if(choice.equals("non")){
+                if (!unique.contains(monid)) {
+                    unique.add(monid);
 
+                    String choice = rec.getString(rec.getColumnIndex("choice"));
+                    String valfrom = rec.getString(rec.getColumnIndex("valfrom"));
+                    String valto = rec.getString(rec.getColumnIndex("valto"));
+                    String days = rec.getString(rec.getColumnIndex("days"));
+                    String noted = rec.getString(rec.getColumnIndex("details"));
+                    recby = rec.getString(rec.getColumnIndex("conforme"));
+                    pos = rec.getString(rec.getColumnIndex("conformeDesignation"));
+                    String recoommend = "";
+                    if(monid.equals("")){
+                        if(choice.equals("issuance")){
+                            recoommend = "For Issuance of License to Operate with Validity date from "+valfrom+" to "+valto;
+                            message = createParagraph(recoommend);
+
+                        }else if(choice.equals("compliance")){
+                            recoommend = "Issuance depends upon compliance to the recommendations given and submission of the following within "+
+                                    days+" days from the date of inspection:";
+                            message = createParagraph(recoommend);
+                        }else if(choice.equals("non")){
+
+                        }
                     }
+                    document.add(message);
+                    message = createParagraph(noted);
+                    document.add(message);
                 }
-                document.add(message);
-                message = createParagraph(noted);
-                document.add(message);
+
                 rec.moveToNext();
             }
 
